@@ -3,6 +3,7 @@
 module Procesor(
     input                         clk,
     input                         reset,
+    input                         cpu_en,   // active-high run-enable from MemCtrl
     input         [`INSTRSIZE - 1:0] instruction,
     input   [`D_SIZE - 1:0] data_in,
     output                  read,
@@ -14,6 +15,8 @@ module Procesor(
 
     wire                        load_en;
     wire                        halt_en;
+    // halt_all: freeze all pipeline registers when halted OR when CPU is stopped
+    wire                        halt_all = halt_en | ~cpu_en;
     wire                        jmp_en;
     wire                        jmpr_en;
     wire                        jmp_ok;
@@ -25,9 +28,10 @@ module Procesor(
     fetch Fetch(
         .clk(clk),
         .reset(reset),
+        .cpu_en(cpu_en),
         .instruction_in(instruction),
         .load_en(load_en),
-        .halt_en(halt_en),
+        .halt_en(halt_all),
         .jmp_en(jmp_en),
         .jmpr_en(jmpr_en),
         .jmp_ok(jmp_ok),
@@ -42,7 +46,7 @@ module Procesor(
         .clk(clk),
         .reset(reset),
         .load_en(load_en),
-        .halt_en(halt_en),
+        .halt_en(halt_all),
         .jmp_en(jmp_en),
         .jmpr_en(jmpr_en),
         .jmp_ok(jmp_ok),
@@ -118,7 +122,7 @@ module Procesor(
         .clk(clk),
         .reset(reset),
         .load_en(load_en),
-        .halt_en(halt_en),
+        .halt_en(halt_all),
         .jmp_en(jmp_en),
         .jmpr_en(jmpr_en),
         .jmp_ok(jmp_ok),
@@ -174,7 +178,7 @@ module Procesor(
     EXECUTE_Pipeline execute_pipeline(
         .clk(clk),
         .reset(reset),
-        .halt_en(halt_en),
+        .halt_en(halt_all),
         .instruction_in(instruction_out_execute),
         .dest_in(dest_execute),
         .result_in(result_execute),
