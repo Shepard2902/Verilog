@@ -1,0 +1,12 @@
+# Extracted Vivado project (the zip is already tracked)
+project_minisyst/
+
+# Vivado generated files
+*.jou
+*.log
+*.str
+*.dcp
+*.bit
+*.ltx
+*.xpr
+*.vcd
